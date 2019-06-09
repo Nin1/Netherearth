@@ -1,0 +1,105 @@
+class Interaction
+{
+	string m_verb;
+	string m_pastTenseVerb;
+	
+	// self punched target
+	OnInteracting(self, target) { Debug.Log("Entity attempting unimplemented interaction"); }
+	
+	// Self was punched by subject
+	OnInteracted(self, subject) { Debug.Log("Entity being interacted with does not implement that interaction"); }
+}
+
+
+class I_PickUp : public Interaction
+{
+	I_PickUp(WorldEntity entity)
+	{
+		entity.AddInteraction(this);
+	}
+}
+
+class ItemEntity : public WorldEntity
+{
+	
+}
+
+WorldEntity
+
+	delegate void Action(Subject, Target);
+	
+	Dictionary<ActionType, Action> m_subjectActions;
+	Dictionary<ActionType, Action> m_targetActions;
+
+	GetSubjectAction(ActionType)
+	{
+		if(m_subjectActions.contains(ActionType)
+		{
+			return m_subjectActions[ActionType];
+		}
+		return ActionType.DefaultAction;
+	}
+	
+	GetTargetAction(ActionType)
+	{
+		if(m_targetActions.contains(ActionType)
+		{
+			return m_targetActions[ActionType];
+		}
+		return ActionType.DefaultAction;
+	}
+
+	OnCollisionEnter(collider)
+	{
+		target = collider.GetComponent<WorldEntity>();
+		ActionFactory::CreateAction(this, target, ActionType::Touch);
+	}
+
+
+
+
+ActionFactory
+
+	struct SubjectTarget
+	{
+		WorldEntity subject;
+		WorldEntity target;
+	}
+	
+	struct ActionWithEntities
+	{
+		Action action;
+		SubjecTarget entities;
+	}
+
+	// Run actions in a queue like the card game actions
+	Queue<ActionWithEntities> m_queue;
+
+	CreateAction(Subject, Target, ActionType, Args)	// Could Args be a part of ActionType?
+	{
+		SubjectTarget entities { subject, target };
+		Action subjectAction = subject.GetSubjectAction(ActionType);
+		Action targetAction = target.GetTargetAction(ActionType);
+		
+		ActionWithEntities fullSubjAction { subjectAction, entities };
+		ActionWithEntities fullTargAction { targetAction, entities };
+		
+		QueueAction(fullSubjAction);	// Will happen first, may end up creating new actions
+		QueueAction(fullTargAction);	// Will happen second, may end up creating new actions
+	}
+	
+	bool queueRunning = false;
+	QueueAction(ActionWithEntities action)
+	{
+		m_queue.enqueue(action);
+		while (m_queue.size > 0 && !queueRunning)
+		{
+			queueRunning = true;
+			// If subject and target are still valid
+				// Run the first action in the queue
+			// else
+				// Remove the first action in the queue
+			queueRunning = false;
+		}
+	}
+
