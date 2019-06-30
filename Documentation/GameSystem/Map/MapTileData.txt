@@ -1,0 +1,25 @@
+A MapTile is a single 1x1 tile of the whole map grid. A tile is 4 units * 4 units in the x and z directions, and can generally be 16 units tall (this depends on the ceiling height of the map).
+
+Tiles are structured similarly to Ultima Underworld's tiles, with a few differences.
+
+###############
+TILE PROPERTIES
+###############
+
+SHAPE:
+Floor Height - The height of the floor at the bottom of any slope on this tile.
+Floor Shape - The shape of the floor - Either flat, or sloped in one of 4 directions.
+Wall Shape - The shape of the wall - Either open, closed, or a diagonal in one of 4 directions.
+
+MATERIAL:
+Materials are stored as an index in Textures/Materials/_MaterialList
+
+North Material - the material shown on the outer north wall of this tile (e.g. if this tile is closed and the northern tile is open, the wall visible from that tile will be this material)
+East, West, South Material
+Floor Material - the material shown on the floor.
+
+##############
+MESHES
+##############
+
+MapTileData can generate a series of meshes from its properties - One for each wall and the floor. These can be generated using the GenerateMesh() function, which requires data from the surrounding map tiles.

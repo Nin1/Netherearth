@@ -1,0 +1,24 @@
+An InventorySlot is a container for a WorldEntity. It has an owner, and an item.
+
+Owner - The WorldEntity that owns this InventorySlot (e.g. a sack will own all inventory slots inside of it)
+Item - The WorldEntity that is stored in this InventorySlot.
+(TODO) Restrictions - Any restriction flags on this slot (e.g. equipment type)
+
+################
+STORING ENTITIES
+################
+
+A WorldEntity can be stored in an InventorySlot using the SetEntity(item) function. This returns true if the object was successfully stored, or false otherwise. This may return false if the slot is not empty, or if the item does not adhere to the restrictions of the slot.
+
+If a WorldEntity is successfully stored, it is modified in the following ways:
+	- Its parent is set to the InventorySlot's owner
+	- Its localPosition is set to 0 so that it follows the owner in world-space
+	- Its GameObject is deactivated.
+
+###################
+RETRIEVING ENTITIES
+###################
+
+The GetEntity() function will return the stored WorldEntity. If the InventorySlot then needs to be cleared, use the ClearSlot() function.
+
+When retrieving an entity from an InventorySlot to place back in the world, be sure to re-activate its GameObject and set its parent to the World object.

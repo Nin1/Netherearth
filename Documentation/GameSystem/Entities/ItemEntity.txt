@@ -1,0 +1,1 @@
+ItemEntity is derived from WorldEntity. It is an entity with a sprite that is drawn when it exists in the world. GameObjects that are ItemEntities need a SpriteRenderer.

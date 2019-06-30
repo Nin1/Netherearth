@@ -10,7 +10,10 @@ public class EntityData : ScriptableObject {
     // Something here for world appearance and interface appearance
     public Sprite sprite;
 
-    bool isEquippable = false;
-    float weightKg = 1.0f;
+    // Where can this entity be equipped?
+    [EnumFlags]
+    public EquipMask equipMask = EquipMask.HELD_ITEM;
+
+    public float weightKg = 1.0f;
 
 }

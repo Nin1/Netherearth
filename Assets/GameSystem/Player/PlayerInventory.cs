@@ -39,24 +39,24 @@ public class PlayerInventory
     // Initialise each slot (TODO: Add slot restrictions)
     void InitSlots(PlayerEntity owner)
     {
-        m_inventory[PlayerInventorySlot.HELD_ITEM] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.OFF_HAND] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_1] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_2] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_3] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_4] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.HEAD] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BODY] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.LEGS] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.FEET] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.HANDS] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.MAIN_HAND] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.OFF_HAND] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.WRISTS] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.BACK] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.NECK] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.LRING] = new InventorySlot(owner);
-        m_inventory[PlayerInventorySlot.RRING] = new InventorySlot(owner);
+        m_inventory[PlayerInventorySlot.HELD_ITEM] =  new InventorySlot(owner, EquipMask.HELD_ITEM);
+        m_inventory[PlayerInventorySlot.OFF_HAND] =   new InventorySlot(owner, EquipMask.OFF_HAND);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_1] = new InventorySlot(owner, EquipMask.EVERYTHING);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_2] = new InventorySlot(owner, EquipMask.EVERYTHING);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_3] = new InventorySlot(owner, EquipMask.EVERYTHING);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_4] = new InventorySlot(owner, EquipMask.EVERYTHING);
+        m_inventory[PlayerInventorySlot.HEAD] =       new InventorySlot(owner, EquipMask.HEAD);
+        m_inventory[PlayerInventorySlot.BODY] =       new InventorySlot(owner, EquipMask.BODY);
+        m_inventory[PlayerInventorySlot.LEGS] =       new InventorySlot(owner, EquipMask.LEGS);
+        m_inventory[PlayerInventorySlot.FEET] =       new InventorySlot(owner, EquipMask.FEET);
+        m_inventory[PlayerInventorySlot.HANDS] =      new InventorySlot(owner, EquipMask.HANDS);
+        m_inventory[PlayerInventorySlot.MAIN_HAND] =  new InventorySlot(owner, EquipMask.MAIN_HAND);
+        m_inventory[PlayerInventorySlot.OFF_HAND] =   new InventorySlot(owner, EquipMask.OFF_HAND);
+        m_inventory[PlayerInventorySlot.WRISTS] =     new InventorySlot(owner, EquipMask.WRISTS);
+        m_inventory[PlayerInventorySlot.BACK] =       new InventorySlot(owner, EquipMask.BACK);
+        m_inventory[PlayerInventorySlot.NECK] =       new InventorySlot(owner, EquipMask.NECK);
+        m_inventory[PlayerInventorySlot.LRING] =      new InventorySlot(owner, EquipMask.RING);
+        m_inventory[PlayerInventorySlot.RRING] =      new InventorySlot(owner, EquipMask.RING);
     }
 
     public InventorySlot GetSlot(PlayerInventorySlot slot)

@@ -1,0 +1,29 @@
+WorldEntity is the base class used for all interactible entities. It contains [EntityData] for the given entity, as well as virtual functions for various actions and reactions.
+
+#####################
+ACTIONS AND REACTIONS
+#####################
+
+Entities can act on each-other - for example, the Player picks up a Sword. The Player will have behaviour defined for what "Pick Up" means, and the Sword will have defined what happens when it is picked up. The ACTION returns true or false depending on whether it is successful (the player may be unable to lift the sword if it is too heavy, for example), and the REACTION is only triggerd on a successful ACTION.
+
+The following is an example of how actions and reactions can be defined:
+
+ACTION:
+PlayerEntity.PickUp(targetEntity) - If the player is strong enough, place the target entity in the player's "held item" inventory slot.
+
+REACTION:
+CursedSwordEntity.OnPickUp(actorEntity) - This sword is cursed, so when lifted it will deal damage to the entity that acted on it.
+
+These actions/reactions are triggered by the function "actor.PerformActionOn(actionType, target)". ActionType is an enum containing all different types of possible actions. See WorldEntity.cs for a full list of ActionTypes.
+
+######################
+PRIMARY AND SECONDARY ACTIONS
+######################
+
+Each entity type can be given default 'primary' and 'secondary' ActionTypes. These are used by the Player to perform default actions on left-click and right-click respectively. For example, the primary ActionType on a button may be "ACTIVATE", and the secondary "EXAMINE", so that the player can left-click to activate the button, and right-click to examine.
+
+################
+EntityData
+################
+
+EntityData is a ScriptableObject defining characteristics of a given entity - For example, its weight, size, name, what equipment slots it fits in, etc.. This contains a lot of fields that will not necessarily be used by every entity, but exist together so that behaviour between different types of entities can remain as generic as possible.

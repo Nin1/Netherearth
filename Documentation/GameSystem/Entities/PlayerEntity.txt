@@ -1,0 +1,43 @@
+PlayerEntity is derived from the WorldEntity class, and includes extra data and behaviour specific to player characters.
+
+#####################
+EYE-BASED INTERACTION
+#####################
+
+The player has two independent directions associated with them:
+
+Body direction - The direction that the player's body is facing. This is always the direction in the center of the screen.
+Eye direction - The direction that the player's eyes are looking. This follows the mouse cursor on the screen.
+
+The Eye direction is used for all interactions, as though the mouse cursor is the player's eyes, and they interact with whatever they are looking at.
+
+#############
+INTERACTIONS
+#############
+
+The player can perform actions on other entities in the world. These are usually controlled by a human using a mouse. The function "InteractWithWorld" will use cause the player to perform the primary or secondary action of whatever is being looked at on that entity, depending on the input button used.
+
+The PlayerEntity class is kept separate from any user input behaviour, in case multiplayer is supported in the future. For more information on player input, see GameSystem/UI/Input/WorldInput.
+
+##################
+PICKING UP ENTITIES
+##################
+
+The player can pick up other entities and carry them on the mouse cursor. When an item is held this way, it is actually kept in a hidden InventorySlot in the player's inventory.
+
+##################
+INVENTORY
+##################
+
+For more information on InventorySlots, see GameSystem/Entity/InventorySlot
+
+The PlayerEntity has a PlayerInventory, which contains a number of InventorySlots, each associated with a "PlayerInventorySlot":
+
+HELD_ITEM - This is the slot used for entities that the player has picked up and is on their cursor
+BAG_SLOT_1 - One of the player's bag slots, which can hold any entity as well as a bag at full capacity.
+BAG_SLOT_2
+BAG_SLOT_3
+BAG_SLOT_4
+HEAD, BODY, LEGS, FEET, HANDS, WRISTS, BACK, NECK, LRING, RRING - Equipment slots that can only hold appropriate entities
+MAIN_HAND, OFF_HAND - Equipment slots that can hold most entities, but are also used for weapons/shields
+

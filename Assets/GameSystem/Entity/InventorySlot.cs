@@ -7,19 +7,27 @@ public class InventorySlot {
     // The entity that owns this inventory slot
     public WorldEntity m_owner { get; private set; }
     WorldEntity m_item;
-
-    // TODO: Restrictions so that certain items can/cannot be placed in this slot (e.g. only allow hats)
+    // Mask defining what kind of things may be "equipped" to this slot
+    EquipMask m_equipMask;
+    
     // TODO: Allow things to listen to inventory slots (e.g. cursor, InventorySlotUI)
 
     public InventorySlot(WorldEntity owner)
     {
         m_owner = owner;
+        m_equipMask = EquipMask.EVERYTHING;
+    }
+
+    public InventorySlot(WorldEntity owner, EquipMask equipMask)
+    {
+        m_owner = owner;
+        m_equipMask = equipMask;
     }
 
     /** Set the item in this inventory slot. Returns false if the item cannot be placed in this slot. */
     public bool SetEntity(WorldEntity item)
     {
-        if (!m_item && item)
+        if (CanPlaceItem(item))
         {
             m_item = item;
             // TODO: Replace SetActive with WorldEntity::HideFromWorld()
@@ -30,6 +38,15 @@ public class InventorySlot {
             return true;
         }
         return false;
+    }
+
+    /** Return true if we can place this item in this slot */
+    bool CanPlaceItem(WorldEntity item)
+    {
+        // Return true if:
+        return !m_item  // There isn't already an item in this slot 
+            && item     // The given item is valid
+            && (item.m_data.equipMask & m_equipMask) > 0;   // The given item fits our EquipMask
     }
 
     public WorldEntity GetEntity()
