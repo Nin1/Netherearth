@@ -10,14 +10,15 @@ public enum EntityType
     OTHER
 }
 
-public enum ActionType
+public enum BasicActionType
 {
     NONE,
     EXAMINE,
     TALKTO,
     ACTIVATE,
     USE,
-    PICKUP
+    PICKUP,
+    ATTACK
 }
 
 public class WorldEntity : MonoBehaviour {
@@ -39,67 +40,98 @@ public class WorldEntity : MonoBehaviour {
 
     public EntityType m_entityType;
 
+    public WorldEntity()
+    {
+        m_entityType = EntityType.OTHER;
+        m_primaryAction = BasicActionType.NONE;
+        m_secondaryAction = BasicActionType.EXAMINE;
+        InitActions();
+    }
+
+    protected WorldEntity(BasicActionType primary, BasicActionType secondary, EntityType type)
+    {
+        m_entityType = type;
+        m_primaryAction = primary;
+        m_secondaryAction = secondary;
+        InitActions();
+    }
+
+    // Do not override pls
+    protected void Awake()
+    {
+        // Use a copy of the EntityData at runtime
+        _data = Instantiate(_data);
+    }
+
+    /** On Destruct listener */
+
+    public delegate void OnDestruct();
+    public event OnDestruct m_onDestruct;
+
+    public void AddOnDestructListener(OnDestruct listener)
+    {
+        m_onDestruct += listener;
+    }
+
+    public void RemoveOnDestructListener(OnDestruct listener)
+    {
+        m_onDestruct -= listener;
+    }
+
+    void OnDestroy()
+    {
+        if (m_onDestruct != null)
+        {
+            m_onDestruct();
+        }
+    }
+
     /** Actions */
 
     public delegate bool Action(WorldEntity other);
     public delegate void Reaction(WorldEntity other);
 
     /** List of actions for this entity when it is the one performing the action */
-    protected Dictionary<ActionType, Action> m_actions;
+    protected Dictionary<BasicActionType, Action> m_actions;
     /** List of actions for this entity when it is the one being acted upon */
-    protected Dictionary<ActionType, Reaction> m_reactions;
+    protected Dictionary<BasicActionType, Reaction> m_reactions;
     /** Default left-click action for this entity */
-    private ActionType m_primaryAction;
+    private BasicActionType m_primaryAction;
     /** Default right-click action for this entity */
-    private ActionType m_secondaryAction;
-
-    public WorldEntity()
-    {
-        m_entityType = EntityType.OTHER;
-        m_primaryAction = ActionType.NONE;
-        m_secondaryAction = ActionType.EXAMINE;
-        InitActions();
-    }
-
-    protected WorldEntity(ActionType primary, ActionType secondary)
-    {
-        m_primaryAction = primary;
-        m_secondaryAction = secondary;
-        InitActions();
-    }
+    private BasicActionType m_secondaryAction;
 
     /** Initialise the action dictionaries - UPDATE THIS whenever adding a new action! */
     private void InitActions()
     {
-        m_actions = new Dictionary<ActionType, Action>();
-        m_reactions = new Dictionary<ActionType, Reaction>();
+        m_actions = new Dictionary<BasicActionType, Action>();
+        m_reactions = new Dictionary<BasicActionType, Reaction>();
 
         // Add new actions here.
 
-        m_actions.Add(ActionType.EXAMINE, Examine);
-        m_reactions.Add(ActionType.EXAMINE, OnExamined);
-        m_actions.Add(ActionType.TALKTO, TalkTo);
-        m_reactions.Add(ActionType.TALKTO, OnTalkedTo);
-        m_actions.Add(ActionType.ACTIVATE, Activate);
-        m_reactions.Add(ActionType.ACTIVATE, OnActivated);
-        m_actions.Add(ActionType.PICKUP, PickUp);
-        m_reactions.Add(ActionType.PICKUP, OnPickUp);
+        m_actions.Add(BasicActionType.EXAMINE, Examine);
+        m_reactions.Add(BasicActionType.EXAMINE, OnExamined);
+        m_actions.Add(BasicActionType.TALKTO, TalkTo);
+        m_reactions.Add(BasicActionType.TALKTO, OnTalkedTo);
+        m_actions.Add(BasicActionType.ACTIVATE, Activate);
+        m_reactions.Add(BasicActionType.ACTIVATE, OnActivated);
+        m_actions.Add(BasicActionType.PICKUP, PickUp);
+        m_reactions.Add(BasicActionType.PICKUP, OnPickUp);
     }
 
     /** This entity performs the subject's default left-click action on it */
     public bool PerformPrimaryActionOn(WorldEntity subject)
     {
-        return PerformActionOn(subject.m_primaryAction, subject);
+        return PerformBasicActionOn(subject.m_primaryAction, subject);
     }
 
     /** Make this entity perform the subject's default right-click action on it */
     public bool PerformSecondaryActionOn(WorldEntity subject)
     {
-        return PerformActionOn(subject.m_secondaryAction, subject);
+        return PerformBasicActionOn(subject.m_secondaryAction, subject);
     }
 
     /** This entity attempts to perform the given action on the subject */
-    public bool PerformActionOn(ActionType actionType, WorldEntity subject)
+    public bool PerformBasicActionOn(BasicActionType actionType, WorldEntity subject)
     {
         Action action = null;
         if (m_actions.TryGetValue(actionType, out action))
@@ -119,8 +151,9 @@ public class WorldEntity : MonoBehaviour {
         return false;
     }
 
-    /** Actions */
-    /** Actions return true if they are successful (e.g. the player is strong enough to pickup another object) */
+    /** Basic Actions */
+    /** Actions with no parameters that return true if they are successful (e.g. the player is strong enough to pickup another object) */
+    /** Reactions with no parameters that should only be called if the proceeding action is successful. */
 
     protected virtual bool Examine(WorldEntity other) { return true; }
     protected virtual void OnExamined(WorldEntity other)
@@ -155,8 +188,22 @@ public class WorldEntity : MonoBehaviour {
         Debug.Log("Lifted " + m_data.examineName);
     }
 
-    protected virtual bool Equip(WorldEntity other) { return true; /* other.IsEquippable */ }
-    protected virtual void OnEquipped(WorldEntity other) { }
+    /** Parametered Actions */
+    /** Actions with specialised parameters have their own invoke calls */
+
+    /** Call PerformEquipActionOn just before moving the item into the inventory slot. */
+    public bool PerformEquipActionOn(WorldEntity other, InventorySlot slot)
+    {
+        if (Equip(other, slot))
+        {
+            other.OnEquipped(this, slot);
+            return true;
+        }
+        return false;
+    }
+    protected virtual bool Equip(WorldEntity other, InventorySlot slot) { return slot.CanPlaceItem(other); }
+    protected virtual void OnEquipped(WorldEntity other, InventorySlot slot) { Debug.Log("Equipped something"); }
+
 
     /** Passive Actions */
 
@@ -167,4 +214,14 @@ public class WorldEntity : MonoBehaviour {
 
     // public void Something temperature related?
 
+
+    public EntityStat GetStat(EntityStatType statType)
+    {
+        if (m_data && m_data.stats.ContainsKey(statType))
+        {
+            return m_data.stats[statType];
+        }
+        Debug.LogWarning("Attempted to get missing stat '" + statType + "' from entity '" + m_data.examineName + "'");
+        return null;
+    }
 }

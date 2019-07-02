@@ -14,8 +14,7 @@ public class PlayerEntity : WorldEntity {
     public float m_dropForce = 100.0f;
 
     [Header("References")]
-    // This would be the camera object for the main player character
-    public Transform m_eyePos;
+    public Transform m_eyePos; // This would be the camera object for the main player character
     CharacterController m_controller;
 
     // Runtime variables
@@ -26,13 +25,12 @@ public class PlayerEntity : WorldEntity {
     // The world-space position of the mouse cursor
     Vector3 m_eyeDirection;
 
-    public PlayerEntity() : base(ActionType.TALKTO, ActionType.EXAMINE)
+    public PlayerEntity() : base(BasicActionType.TALKTO, BasicActionType.EXAMINE, EntityType.PLAYER)
     {
-        m_entityType = EntityType.PLAYER;
         m_inventory = new PlayerInventory(this);
     }
 
-    private void Awake()
+    void Start()
     {
         m_eyePos = Camera.main.transform;
         m_controller = GetComponent<CharacterController>();
@@ -103,7 +101,7 @@ public class PlayerEntity : WorldEntity {
         {
             return false;
         }
-        return PerformActionOn(ActionType.PICKUP, entity);
+        return PerformBasicActionOn(BasicActionType.PICKUP, entity);
     }
 
     /** Try to pick up whatever the player is looking at. Returns false if they failed to pick up */

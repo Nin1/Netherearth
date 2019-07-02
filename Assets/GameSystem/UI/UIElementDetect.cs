@@ -20,7 +20,7 @@ public class UIElementDetect : MonoBehaviour {
 
     public void OnMouseEnter()
     {
-        Debug.Log("Mouse over " + m_thisElement);
+        //Debug.Log("Mouse over " + m_thisElement);
         mouseOverElement = m_thisElement;
         m_isMouseOver = true;
     }

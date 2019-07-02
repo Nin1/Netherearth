@@ -11,9 +11,12 @@ public class EntityData : ScriptableObject {
     public Sprite sprite;
 
     // Where can this entity be equipped?
-    [EnumFlags]
-    public EquipMask equipMask = EquipMask.HELD_ITEM;
+    [EnumFlags] public EquipMask equipMask = EquipMask.HELD_ITEM & EquipMask.BAG_SLOT;
 
+    // Any stats that this entity may possess
+    public EntityStatsDictionary stats;
+
+    // How much this entity weighs in KG (excluding children)
     public float weightKg = 1.0f;
 
 }

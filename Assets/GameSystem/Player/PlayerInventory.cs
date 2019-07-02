@@ -39,12 +39,12 @@ public class PlayerInventory
     // Initialise each slot (TODO: Add slot restrictions)
     void InitSlots(PlayerEntity owner)
     {
-        m_inventory[PlayerInventorySlot.HELD_ITEM] =  new InventorySlot(owner, EquipMask.HELD_ITEM);
+        m_inventory[PlayerInventorySlot.HELD_ITEM] = new InventorySlot(owner); //, EquipMask.HELD_ITEM);
         m_inventory[PlayerInventorySlot.OFF_HAND] =   new InventorySlot(owner, EquipMask.OFF_HAND);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_1] = new InventorySlot(owner, EquipMask.EVERYTHING);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_2] = new InventorySlot(owner, EquipMask.EVERYTHING);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_3] = new InventorySlot(owner, EquipMask.EVERYTHING);
-        m_inventory[PlayerInventorySlot.BAG_SLOT_4] = new InventorySlot(owner, EquipMask.EVERYTHING);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_1] = new InventorySlot(owner); //, EquipMask.BAG_SLOT
+        m_inventory[PlayerInventorySlot.BAG_SLOT_2] = new InventorySlot(owner);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_3] = new InventorySlot(owner);
+        m_inventory[PlayerInventorySlot.BAG_SLOT_4] = new InventorySlot(owner);
         m_inventory[PlayerInventorySlot.HEAD] =       new InventorySlot(owner, EquipMask.HEAD);
         m_inventory[PlayerInventorySlot.BODY] =       new InventorySlot(owner, EquipMask.BODY);
         m_inventory[PlayerInventorySlot.LEGS] =       new InventorySlot(owner, EquipMask.LEGS);

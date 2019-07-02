@@ -7,9 +7,8 @@ public class ItemEntity : WorldEntity {
     public SpriteRenderer m_sprite;
     //Rigidbody m_rb;
 
-    public ItemEntity() : base(ActionType.NONE, ActionType.EXAMINE)
+    public ItemEntity() : base(BasicActionType.NONE, BasicActionType.EXAMINE, EntityType.ITEM)
     {
-        m_entityType = EntityType.ITEM;
     }
 
     protected override void OnPickUp(WorldEntity other)

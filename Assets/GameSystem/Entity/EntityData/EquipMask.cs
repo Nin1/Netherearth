@@ -5,8 +5,7 @@ using UnityEngine;
 [System.Flags]
 public enum EquipMask
 {
-    NONE = 0,
-    EVERYTHING = int.MaxValue,
+    UNSPECIFIED = 0,
     // Bitmask for equipment slots
     HELD_ITEM = 1 << 0,
     BAG_SLOT = 1 << 1,
