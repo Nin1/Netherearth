@@ -45,11 +45,7 @@ public class FoodEntity : WorldEntity
         if ((slot.m_equipMask & EquipMask.HEAD) > 0)
         {
             // Make the other entity eat this food if equipped to the head slot
-            if (other.PerformBasicActionOn(BasicActionType.ACTIVATE, this))
-            {
-                // It got ate, so clear the slot.
-                slot.ClearSlot();
-            }
+            other.PerformBasicActionOn(BasicActionType.ACTIVATE, this);
         }
     }
 }

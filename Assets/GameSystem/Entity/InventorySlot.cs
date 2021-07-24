@@ -29,19 +29,13 @@ public class InventorySlot {
     {
         if (CanPlaceItem(item))
         {
-            // If we have an equip mask, tell our owner to perform an "equip" action on it
-            if (m_equipMask != EquipMask.UNSPECIFIED)
-            {
-                m_owner.PerformEquipActionOn(item, this);
-            }
-
             m_item = item;
             // TODO: Replace SetActive with WorldEntity::HideFromWorld()
             m_item.gameObject.SetActive(false);
             // Move item to physically be "inside" its owner
             m_item.transform.parent = m_owner.transform;
             m_item.transform.localPosition = new Vector3(0, 0, 0);
-
+            m_item.AddOnDestructListener(ClearSlot);
             return true;
         }
         return false;
@@ -71,6 +65,10 @@ public class InventorySlot {
 
     public void ClearSlot()
     {
+        if (m_item)
+        {
+            m_item.RemoveOnDestructListener(ClearSlot);
+        }
         m_item = null;
     }
 }

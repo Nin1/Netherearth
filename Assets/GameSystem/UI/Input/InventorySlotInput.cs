@@ -61,17 +61,30 @@ public class InventorySlotInput : MonoBehaviour, IPointerDownHandler, IDragHandl
     /** Try to put the player's held object in this slot. Return true on success. */
     bool TryPutItemInSlot()
     {
-        if (m_slot.IsEmpty())
+        bool equipped = false;
+        if (m_slot.m_equipMask != EquipMask.UNSPECIFIED)
         {
-            if (m_slot.SetEntity(m_player.GetHeldEntity()))
+            // If this is an equipment slot, attempt to equip
+            equipped = m_slot.m_owner.PerformEquipActionOn(m_player.GetHeldEntity(), m_slot);
+        }
+        else if (m_slot.SetEntity(m_player.GetHeldEntity()))
+        {
+            // Otherwise we just put the object into the slot
+            equipped = true;
+        }
+
+        if (equipped)
+        {
+            // Player is no longer holding the item
+            m_player.ClearHeldEntity();
+            // If the entity still exists, update our slot sprite
+            if (m_slot.GetEntity())
             {
-                m_player.ClearHeldEntity();
                 m_image.color = Color.white;
                 m_image.sprite = m_slot.GetEntity().m_data.sprite;
                 m_slot.GetEntity().AddOnDestructListener(OnItemDestroyed);
-
-                return true;
             }
+            return true;
         }
         return false;
     }

@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class PlayerController : MonoBehaviour {
 
     public static PlayerController instance;
+
+    public bool m_vr = false;
 
     [Header("Movement")]
     public float m_maxSpeed = 2.0f;
@@ -12,6 +15,9 @@ public class PlayerController : MonoBehaviour {
     public float m_decelleration = 10.0f;
     public float m_gravity = -10.0f;
     public float m_jumpAccelleration = 100.0f;
+
+    // The average forward direction for these will be used as the forward direction
+    public Transform[] m_directionReferences;
 
     [Header("Interaction")]
     public float m_reach = 5.0f;
@@ -28,8 +34,7 @@ public class PlayerController : MonoBehaviour {
     WorldEntity m_heldEntity;
 
     PlayerEntity m_entity;
-
-    // Use this for initialization
+    
     void Awake () {
         if(!instance)
         {
@@ -45,7 +50,6 @@ public class PlayerController : MonoBehaviour {
         }
 	}
 	
-	// Update is called once per frame
 	void Update () {
         SetMainCamera();
         HandleInput();
@@ -56,133 +60,36 @@ public class PlayerController : MonoBehaviour {
         //HandleInteract();
         HandleMovementInput();
     }
-    /*
-    void HandleInteract()
-    {
-        if (Input.GetButtonDown("Primary Interact"))
-        {
-            switch(m_playerState.state)
-            {
-                case PlayerStateName.NORMAL:
-                    InteractWithWorld(true);
-                    break;
-                case PlayerStateName.HOLDING_ITEM:
-                    DropItem();
-                    break;
-            }
-        }
-        if (Input.GetButtonDown("Secondary Interact"))
-        {
-            switch (m_playerState.state)
-            {
-                case PlayerStateName.NORMAL:
-                    InteractWithWorld(false);
-                    break;
-            }
-        }
-    }
 
-    void InteractWithWorld(bool primary)
-    {
-        Vector3 mouseDir = SoftwareMouse.GetMouseWorldDirection(m_camera);
-        //int layerMask = LayerMask.GetMask("Player", "UI");
-        RaycastHit hit;
-        if (Physics.Raycast(m_camera.transform.position, mouseDir, out hit, m_reach))
-        {
-            WorldEntity subject = hit.transform.GetComponent<WorldEntity>();
-            if (subject)
-            {
-                if (primary)
-                {
-                    m_entity.PerformPrimaryActionOn(subject);
-                }
-                else
-                {
-                    m_entity.PerformSecondaryActionOn(subject);
-                }
-            }
-        }
-    }
-
-    void DropItem()
-    {
-        Vector3 mouseDir = SoftwareMouse.GetMouseWorldDirection(m_camera);
-        //int layerMask = LayerMask.GetMask("Player", "UI");
-        RaycastHit hit;
-        if (Physics.Raycast(m_camera.transform.position, mouseDir, out hit, m_dropDistance))
-        {
-            // An item can't be dropped here (e.g. wall is too close)
-        }
-        else
-        {
-            // Drop the item in front of the player
-            Vector3 dropPos = m_camera.transform.position + (mouseDir * m_dropDistance);
-
-            m_heldEntity.gameObject.SetActive(true);
-            Transform droppedEntity = m_heldEntity.transform;
-            droppedEntity.position = dropPos;
-
-            // @TODO: Hold-down interact and release for a more powerful throw
-            Rigidbody rb = droppedEntity.GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.AddForce(mouseDir * m_dropForce);
-
-            // Not holding an item anymore!
-            m_heldEntity = null;
-            ChangeState(PlayerStateName.NORMAL);
-        }
-    }
-    */
     void HandleMovementInput()
     {
-        // Get forward direction (without y component)
-        Vector3 forward = m_camera.transform.forward;
-        forward = new Vector3(forward.x, 0, forward.z);
-        forward.Normalize();
+        Vector3 forward = GetForwardMovementVector();
 
         // Get right direction (without y component)
-        Vector3 right = m_camera.transform.right;
-        right = new Vector3(right.x, 0, right.z);
-        right.Normalize();
+        Vector3 right = GetRightMovementVector();
 
-        // Forwards
-        if (Input.GetKey(KeyCode.W))
+        // Forward/Backwards
+        float vertical = m_vr ? SteamVR_Actions.default_Walk[SteamVR_Input_Sources.LeftHand].axis.y : Input.GetAxisRaw("Vertical");
+
+        if (!Mathf.Approximately(vertical, 0.0f))
         {
-            Accellerate(forward);
+            Accellerate(forward * vertical);
         }
         else
         {
             Decellerate(forward);
         }
 
-        // Backwards
-        if (Input.GetKey(KeyCode.S))
-        {
-            Accellerate(-forward);
-        }
-        else
-        {
-            Decellerate(-forward);
-        }
+        // Left/Right
+        float horizontal = m_vr ? SteamVR_Actions.default_Walk[SteamVR_Input_Sources.LeftHand].axis.x : Input.GetAxisRaw("Horizontal");
 
-        // Right
-        if (Input.GetKey(KeyCode.D))
+        if (!Mathf.Approximately(horizontal, 0.0f))
         {
-            Accellerate(right);
+            Accellerate(right * horizontal);
         }
         else
         {
             Decellerate(right);
-        }
-
-        // Left
-        if (Input.GetKey(KeyCode.A))
-        {
-            Accellerate(-right);
-        }
-        else
-        {
-            Decellerate(-right);
         }
 
         // Gravity & jumping
@@ -199,14 +106,54 @@ public class PlayerController : MonoBehaviour {
             m_velocity.y = Mathf.Max(m_velocity.y, 0.0f);
         }
 
-
+        // Max speed cap
+        // Ignore y velocity
+        float yVel = m_velocity.y;
+        m_velocity.y = 0;
         if (m_velocity.magnitude > m_maxSpeed)
         {
             m_velocity.Normalize();
             m_velocity *= m_maxSpeed;
         }
+        m_velocity.y = yVel;
 
         m_controller.SimpleMove(m_velocity);
+    }
+
+    Vector3 GetForwardMovementVector()
+    {
+        Vector3 forward = Vector3.zero;
+        foreach (Transform t in m_directionReferences)
+        {
+            forward += t.forward;
+        }
+
+        if (forward == Vector3.zero)
+        {
+            // We've got no references or they have no forward vector - Get the camera forward instead
+            forward = m_camera.transform.forward;
+        }
+
+        forward.y = 0;
+        return forward.normalized;
+    }
+
+    Vector3 GetRightMovementVector()
+    {
+        Vector3 right = Vector3.zero;
+        foreach (Transform t in m_directionReferences)
+        {
+            right += t.right;
+        }
+
+        if (right == Vector3.zero)
+        {
+            // We've got no references or they have no right vector - Get the camera right instead
+            right = m_camera.transform.right;
+        }
+
+        right.y = 0;
+        return right.normalized;
     }
 
     void Accellerate(Vector3 direction)
@@ -217,20 +164,33 @@ public class PlayerController : MonoBehaviour {
     void Decellerate(Vector3 direction)
     {
         // Check if moving in this direction
-        float dot = Vector3.Dot(m_velocity, direction);
+        float forwardDot = Vector3.Dot(m_velocity, direction);
+        float backwardDot = Vector3.Dot(m_velocity, -direction);
 
-        if (dot > 0)
+        if (forwardDot > 0)
         {
             // Decellerate
-            if (dot > 1)
+            if (forwardDot > 1)
             {
                 m_velocity -= direction * m_decelleration * Time.deltaTime;
             }
             else
             {
-                m_velocity -= direction * dot;
+                m_velocity -= direction * forwardDot;
             }
         }
+        else if (backwardDot > 0)
+        {
+            if (backwardDot > 1)
+            {
+                m_velocity += direction * m_decelleration * Time.deltaTime;
+            }
+            else
+            {
+                m_velocity += direction * backwardDot;
+            }
+        }
+
     }
 
     void SetMainCamera()

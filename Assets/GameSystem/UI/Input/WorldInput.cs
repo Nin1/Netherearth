@@ -24,7 +24,7 @@ public class WorldInput : MonoBehaviour {
     UIElementDetect m_detect;
     [SerializeField]
     PlayerEntity m_player;
-    [SerializeField]
+
     Camera m_camera;
 
     // The point in the world where the mouse was clicked down

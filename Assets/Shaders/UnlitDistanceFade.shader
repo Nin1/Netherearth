@@ -54,15 +54,16 @@
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-				float depth = Linear01Depth(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)).r);
+				//float depth = LinearEyeDepth(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)).r);
+				float depth = tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)).r;
 
 				// If depth < n, 100% brightness
 				// If depth > p, 0% brightness
 				// slerp between
 
 				// TODO: Uniform these bad boys
-				float falloffStart = 0.00;
-				float falloffEnd = 0.08;
+				float falloffStart = 0.3;
+				float falloffEnd = 0.01;
 
 				float falloffDist = falloffEnd - falloffStart;
 				float m = -1.0 / falloffDist;

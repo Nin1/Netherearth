@@ -21,6 +21,19 @@ public enum BasicActionType
     ATTACK
 }
 
+public enum ActionType
+{
+    NONE = BasicActionType.NONE,
+    EXAMINE = BasicActionType.EXAMINE,
+    TALKTO = BasicActionType.TALKTO,
+    ACTIVATE = BasicActionType.ACTIVATE,
+    USE = BasicActionType.USE,
+    PICKUP = BasicActionType.PICKUP,
+    ATTACK = BasicActionType.ATTACK,
+    EQUIP,
+
+}
+
 public class WorldEntity : MonoBehaviour {
 
     [SerializeField]
@@ -64,7 +77,7 @@ public class WorldEntity : MonoBehaviour {
     }
 
     /** On Destruct listener */
-
+    // TODO: Make an "OnStateChange(oldState, newState)" listener instead?
     public delegate void OnDestruct();
     public event OnDestruct m_onDestruct;
 
@@ -201,8 +214,8 @@ public class WorldEntity : MonoBehaviour {
         }
         return false;
     }
-    protected virtual bool Equip(WorldEntity other, InventorySlot slot) { return slot.CanPlaceItem(other); }
-    protected virtual void OnEquipped(WorldEntity other, InventorySlot slot) { Debug.Log("Equipped something"); }
+    protected virtual bool Equip(WorldEntity other, InventorySlot slot) { return slot.SetEntity(other); }
+    protected virtual void OnEquipped(WorldEntity other, InventorySlot slot) { Debug.Log("Equipped something inconsequential."); }
 
 
     /** Passive Actions */
